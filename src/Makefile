@@ -129,6 +129,7 @@ solaris:
 
 # DO NOT DELETE
 
+proxy.o:proxy.c
 lapi.o: lapi.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
  lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h lstring.h \
  ltable.h lundump.h lvm.h
@@ -157,7 +158,7 @@ linit.o: linit.c lprefix.h lua.h luaconf.h lualib.h lauxlib.h
 liolib.o: liolib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
 llex.o: llex.c lprefix.h lua.h luaconf.h lctype.h llimits.h ldebug.h \
  lstate.h lobject.h ltm.h lzio.h lmem.h ldo.h lgc.h llex.h lparser.h \
- lstring.h ltable.h
+ lstring.h ltable.h proxy.c
 lmathlib.o: lmathlib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
 lmem.o: lmem.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
  llimits.h ltm.h lzio.h lmem.h ldo.h lgc.h

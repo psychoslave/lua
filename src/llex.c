@@ -545,7 +545,7 @@ static int llex (LexState *ls, SemInfo *seminfo) {
   }
 }
 
-
+#include "proxy.c"
 void luaX_next (LexState *ls) {
   ls->lastline = ls->linenumber;
   if (ls->lookahead.token != TK_EOS) {  /* is there a look-ahead token? */
