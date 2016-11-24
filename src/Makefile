@@ -1,4 +1,4 @@
-# Makefile for building Lua
+# Makefile for building Lua-i18n
 # See ../doc/readme.html for installation and customization instructions.
 
 # == CHANGE THE SETTINGS BELOW TO SUIT YOUR ENVIRONMENT =======================
@@ -7,7 +7,25 @@
 PLAT= none
 
 CC= gcc -std=gnu99
-CFLAGS= -O2 -Wall -Wextra -DLUA_COMPAT_5_2 $(SYSCFLAGS) $(MYCFLAGS)
+# To disable an iternationalization facility support, comment it's assignation, or assign nothing
+# ASSIGNING ANY VALUE, EVEN FALSE WON'T DISABLE IT.
+# I18N_ERROR enable localization of error messages
+I18N_ERROR= true
+# I18N_RESERVEDWORDS enable facilities to alias and replace standard reserved tokens
+I18N_RESERVEDWORDS= true
+# I18N_TOKEN enable facilities to load localized usual (non-reserved) tokens in non-ASCII character set
+I18N_TOKEN= true
+# I18N_VALUE enable facilities for localized values, such as number formating (ie. ٣٫١٤ rather than 3.14)
+I18N_VALUE= true
+
+I18N_ERRORCFLAG!= test -n "$(I18N_)" && echo " -D I18N_ERROR"
+I18N_RESERVEDWORDSCFLAG!= test -n "$(I18N_RESERVEDWORDS)" && echo " -D I18N_RESERVEDWORDS"
+I18N_TOKENCFLAG!= test -n "$(I18N_TOKEN)" && echo " -D I18N_TOKEN"
+I18N_VALUECFLAG!= test -n "$(I18N_VALUE)" && echo " -D I18N_VALUE"
+
+I18N_CFLAGS= $(I18N_ERRORCFLAG) $(I18N_RESERVEDWORDSCFLAG) $(I18N_TOKENCFLAG) $(I18N_VALUECFLAG)
+
+CFLAGS= -O2 -Wall -Wextra -DLUA_COMPAT_5_2 $(SYSCFLAGS) $(MYCFLAGS) $(I18N_CFLAGS)
 LDFLAGS= $(SYSLDFLAGS) $(MYLDFLAGS)
 LIBS= -lm $(SYSLIBS) $(MYLIBS)
 
@@ -36,13 +54,18 @@ LIB_O=	lauxlib.o lbaselib.o lbitlib.o lcorolib.o ldblib.o liolib.o \
 	lmathlib.o loslib.o lstrlib.o ltablib.o lutf8lib.o loadlib.o linit.o
 BASE_O= $(CORE_O) $(LIB_O) $(MYOBJS)
 
+TOKEN_PROXY=i18n_tokenproxy
+I18N_TOKENDEPS!= test -n "$(I18N_TOKEN)" && echo "$(TOKEN_PROXY).c" # dependencies for I18N_TOKEN"
+I18N_TOKEN_O= test -n "$(I18N_TOKEN)" && echo "$(TOKEN_PROXY).o"
+I18N_ALL_O= I18N_TOKEN_O
+
 LUA_T=	lua
 LUA_O=	lua.o
 
 LUAC_T=	luac
 LUAC_O=	luac.o
 
-ALL_O= $(BASE_O) $(LUA_O) $(LUAC_O)
+ALL_O= $(BASE_O) $(LUA_O) $(LUAC_O) $(I18N_ALL_O)
 ALL_T= $(LUA_A) $(LUA_T) $(LUAC_T)
 ALL_A= $(LUA_A)
 
@@ -129,7 +152,7 @@ solaris:
 
 # DO NOT DELETE
 
-proxy.o:proxy.c
+$(I18N_TOKEN_O):$(I18N_TOKENDEPS)
 lapi.o: lapi.c lprefix.h lua.h luaconf.h lapi.h llimits.h lstate.h \
  lobject.h ltm.h lzio.h lmem.h ldebug.h ldo.h lfunc.h lgc.h lstring.h \
  ltable.h lundump.h lvm.h
@@ -158,7 +181,7 @@ linit.o: linit.c lprefix.h lua.h luaconf.h lualib.h lauxlib.h
 liolib.o: liolib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
 llex.o: llex.c lprefix.h lua.h luaconf.h lctype.h llimits.h ldebug.h \
  lstate.h lobject.h ltm.h lzio.h lmem.h ldo.h lgc.h llex.h lparser.h \
- lstring.h ltable.h proxy.c
+ lstring.h ltable.h $(I18N_TOKENDEPS)
 lmathlib.o: lmathlib.c lprefix.h lua.h luaconf.h lauxlib.h lualib.h
 lmem.o: lmem.c lprefix.h lua.h luaconf.h ldebug.h lstate.h lobject.h \
  llimits.h ltm.h lzio.h lmem.h ldo.h lgc.h
