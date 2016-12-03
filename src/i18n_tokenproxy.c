@@ -124,6 +124,12 @@ static void debug_print_lexicon(lexem *aliases, const int limit) {
         debug_print("%s have value %i\n", aliases[i].name, aliases[i].token);
 }
 
+static void free_aliases() {
+    for(int i=0; i < alias_count; i++)
+        free(aliases[i].name);
+    free(aliases);
+    alias_count = 0;
+}
 /**
 * Return the number of entry scanned in lexicon_path and stored in the aliases array
 // TODO this is a very rough parsing, which with a very strict format…
@@ -131,8 +137,7 @@ static void debug_print_lexicon(lexem *aliases, const int limit) {
 */
 static int parse_lexicon_file(const char *lexicon_path, const int line_to_read) {
     if( aliases != 0)
-        free(aliases); // Only one lexicon can be loaded at once
-        // TODO aliases[n].name should be freed too
+        free_aliases(); // Only one lexicon can be loaded at once for now
     aliases = malloc(line_to_read * sizeof *aliases);
     const int alias_max_length = 128;
     const int keyword_max_length = 128;
